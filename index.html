@@ -25,49 +25,64 @@
         .image-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
+            gap: 20px;
             margin-bottom: 20px;
-            padding: 10px;
+            padding: 15px;
         }
         .image-item {
             position: relative;
-            border-radius: 8px;
+            border-radius: 12px;
             overflow: hidden;
             cursor: pointer;
-            aspect-ratio: 3/4;
             background-color: #f8f8f8;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .image-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .image-item.selected {
+            border: 3px solid #07c160;
         }
         .image-item.selected::after {
             content: '✓';
             position: absolute;
-            top: 5px;
-            right: 5px;
-            width: 20px;
-            height: 20px;
+            top: 10px;
+            right: 10px;
+            width: 24px;
+            height: 24px;
             background: #07c160;
             color: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            font-size: 14px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         .preview-image {
             width: 100%;
-            height: 100%;
-            aspect-ratio: 3/4;
-            object-fit: contain;
-            background-color: #f8f8f8;
+            height: auto;
+            display: block;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        .image-item:hover .preview-image {
+            transform: scale(1.05);
         }
         .content-text {
             margin: 20px 0;
-            padding: 15px;
-            width: calc(100% - 30px);
+            padding: 20px;
+            width: calc(100% - 40px);
             text-align: left;
             background: #f8f8f8;
-            border-radius: 8px;
+            border-radius: 12px;
             line-height: 1.6;
             color: #333;
+            font-size: 16px;
+            border-left: 4px solid #07c160;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
         }
         .share-btn {
             width: 100%;
@@ -75,33 +90,44 @@
             background-color: #07c160;
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(7,193,96,0.3);
+        }
+        .share-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(7,193,96,0.4);
         }
         .share-btn:active {
             background-color: #06ad56;
+            transform: translateY(0);
         }
         .instructions {
             margin-top: 20px;
             color: #666;
             font-size: 14px;
             background: #fff;
-            padding: 15px;
-            border-radius: 8px;
+            padding: 20px;
+            border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         .instructions p {
             margin: 8px 0;
             display: flex;
             align-items: center;
+            transition: transform 0.2s ease;
+        }
+        .instructions p:hover {
+            transform: translateX(5px);
         }
         .instructions p:before {
             content: "•";
             margin-right: 8px;
             color: #07c160;
+            font-size: 18px;
         }
         .loading {
             position: fixed;
@@ -109,12 +135,19 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0,0,0,0.7);
             display: none;
             justify-content: center;
             align-items: center;
             color: white;
             font-size: 16px;
+            backdrop-filter: blur(5px);
+        }
+        .loading-content {
+            background: rgba(255,255,255,0.1);
+            padding: 20px 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
     </style>
 </head>
@@ -136,25 +169,31 @@
     </div>
 
     <div id="loading" class="loading">
-        正在处理，请稍候...
+        <div class="loading-content">
+            正在处理，请稍候...
+        </div>
     </div>
 
     <script>
         const images = [
             { 
-                url: 'https://s1.ax1x.com/2024/01/03/piFPSVf.jpg', 
+                url: 'https://s1.ax1x.com/2024/01/03/piFkPv4.jpg',
                 text: 'hihi哦会哦i哈哈哦i开票快跑快跑' 
             },
             { 
-                url: 'https://s1.ax1x.com/2024/01/03/piFPpkT.jpg', 
+                url: 'https://s1.ax1x.com/2024/01/03/piFkiKU.jpg',
                 text: '' 
             },
             { 
-                url: 'https://s1.ax1x.com/2024/01/03/piFP9xJ.jpg', 
+                url: 'https://s1.ax1x.com/2024/01/03/piFkFpT.jpg',
                 text: '' 
             },
             { 
-                url: 'https://s1.ax1x.com/2024/01/03/piFPCE4.jpg', 
+                url: 'https://s1.ax1x.com/2024/01/03/piFkVQx.jpg',
+                text: '' 
+            },
+            { 
+                url: 'https://s1.ax1x.com/2024/01/03/piFkEh6.jpg',
                 text: '' 
             }
         ];
