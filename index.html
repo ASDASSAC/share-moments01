@@ -22,10 +22,37 @@
             padding: 20px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .image-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .image-item.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 20px;
+            height: 20px;
+            background: #07c160;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
         .preview-image {
             width: 100%;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            aspect-ratio: 1;
+            object-fit: cover;
         }
         .content-text {
             margin: 20px 0;
@@ -88,12 +115,15 @@
 </head>
 <body>
     <div class="container">
-        <img id="previewImage" class="preview-image" src="https://example.com/your-image.jpg" alt="分享图片">
-        <p id="contentText" class="content-text">这里放入你想要分享的文案内容</p>
-        <button class="share-btn" onclick="handleShare()">一键保存图片和文字</button>
+        <div class="image-grid" id="imageGrid">
+            <!-- 图片列表将通过 JavaScript 动态生成 -->
+        </div>
+        <p id="contentText" class="content-text">点击图片查看对应文案</p>
+        <button class="share-btn" onclick="handleShare()">一键保存选中的图片和文字</button>
     </div>
     
     <div class="instructions">
+        <p>点击选择要分享的图片</p>
         <p>点击按钮后自动保存图片并复制文字</p>
         <p>打开微信朋友圈</p>
         <p>选择刚保存的图片</p>
@@ -105,39 +135,74 @@
     </div>
 
     <script>
+        const images = [
+            { 
+                url: 'https://i.ibb.co/M6ZBLHM/brown-dress-1.jpg', 
+                text: 'hihi哦会哦i哈哈哦i开票快跑快跑' 
+            },
+            { 
+                url: 'https://i.ibb.co/yXQ4L8Y/brown-dress-2.jpg', 
+                text: '' 
+            },
+            { 
+                url: 'https://i.ibb.co/Kj8YtNv/black-outfit.jpg', 
+                text: '' 
+            },
+            { 
+                url: 'https://i.ibb.co/0MFjz9L/comparison.jpg', 
+                text: '' 
+            }
+        ];
+
+        let selectedIndex = -1;
+
+        function initializeImageGrid() {
+            const grid = document.getElementById('imageGrid');
+            images.forEach((image, index) => {
+                const div = document.createElement('div');
+                div.className = 'image-item';
+                div.innerHTML = `<img src="${image.url}" class="preview-image" alt="分享图片${index + 1}">`;
+                div.onclick = () => selectImage(index);
+                grid.appendChild(div);
+            });
+        }
+
+        function selectImage(index) {
+            const items = document.querySelectorAll('.image-item');
+            items.forEach(item => item.classList.remove('selected'));
+            items[index].classList.add('selected');
+            selectedIndex = index;
+            document.getElementById('contentText').innerText = images[0].text;
+        }
+
         async function handleShare() {
+            if (selectedIndex === -1) {
+                alert('请先选择一张图片');
+                return;
+            }
+
             const loading = document.getElementById('loading');
             loading.style.display = 'flex';
             
             try {
-                // 复制文字到剪贴板
                 const content = document.getElementById('contentText').innerText;
                 await navigator.clipboard.writeText(content);
 
-                // 获取图片
-                const image = document.getElementById('previewImage');
-                
-                // 使用 fetch 下载图片
-                const response = await fetch(image.src);
+                const response = await fetch(images[selectedIndex].url);
                 const blob = await response.blob();
-                
-                // 创建临时URL
                 const blobUrl = window.URL.createObjectURL(blob);
                 
-                // 创建下载链接
                 const link = document.createElement('a');
                 link.href = blobUrl;
-                link.download = 'share-image.jpg';
+                link.download = `share-image-${selectedIndex + 1}.jpg`;
                 document.body.appendChild(link);
                 link.click();
                 
-                // 清理
                 document.body.removeChild(link);
                 window.URL.revokeObjectURL(blobUrl);
                 
                 loading.style.display = 'none';
                 
-                // 使用更友好的提示
                 setTimeout(() => {
                     alert('准备完成！\n\n• 图片已保存到相册\n• 文字已复制到剪贴板\n\n现在可以打开朋友圈发布了～');
                 }, 100);
@@ -149,10 +214,8 @@
             }
         }
 
-        // 预加载图片
         window.onload = function() {
-            const img = new Image();
-            img.src = document.getElementById('previewImage').src;
+            initializeImageGrid();
         }
     </script>
 </body>
